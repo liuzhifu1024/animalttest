@@ -5,23 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>测一测你的动物塑</title>
+    <title>动物塑测试 - 探索你的动物原型</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐾</text></svg>">
     <style>
         /* 保持原有样式不变，增加iOS兼容性代码 */
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@500;700&display=swap');
 
         :root {
-            --bg-color: #f8f9fc;
-            --primary-text: #2d3748;
-            --secondary-text: #4a5568;
-            --accent-color: #6b46c1;
-            --accent-light: #805ad5;
+            --bg-color: #faf9f6;
+            --primary-text: #3d3d3d;
+            --secondary-text: #6b6b6b;
+            --accent-color: #a78bfa;
+            --accent-light: #c4b5fd;
             --card-bg: #ffffff;
-            --card-bg-light: #f7fafc;
-            --border-color: #e2e8f0;
-            --hover-bg: #f6f6ff;
-            --shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-            --shadow-glow: 0 0 15px rgba(107, 70, 193, 0.15);
+            --card-bg-light: #fefefe;
+            --border-color: #e8e4e0;
+            --hover-bg: #f5f3ff;
+            --shadow: 0 4px 20px rgba(167, 139, 250, 0.1);
+            --shadow-glow: 0 0 20px rgba(167, 139, 250, 0.12);
         }
 
         * {
@@ -400,7 +401,7 @@
             margin-bottom: 35px;
             text-align: center;
             font-weight: 700;
-            text-shadow: 0 0 15px rgba(107, 70, 193, 0.2);
+            text-shadow: 0 0 20px rgba(167, 139, 250, 0.25);
             animation: pulse 3s infinite;
             -webkit-animation: pulse 3s infinite; /* Safari兼容 */
         }
@@ -415,6 +416,62 @@
             0% { -webkit-transform: scale(1); }
             50% { -webkit-transform: scale(1.05); }
             100% { -webkit-transform: scale(1); }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(2deg); }
+        }
+
+        .animal-icon-float {
+            display: inline-block;
+            animation: float 3s ease-in-out infinite;
+            transition: transform 0.3s ease;
+        }
+
+        .animal-icon-float:hover {
+            transform: scale(1.15) translateY(-5px);
+        }
+
+        @keyframes fadeInScale {
+            0% { 
+                opacity: 0; 
+                transform: scale(0.5);
+            }
+            100% { 
+                opacity: 1; 
+                transform: scale(1);
+            }
+        }
+
+        /* 核心特质卡片样式 */
+        .trait-card {
+            background: linear-gradient(135deg, rgba(167, 139, 250, 0.12), rgba(196, 181, 253, 0.12));
+            border: 1.5px solid rgba(167, 139, 250, 0.25);
+            border-radius: 24px;
+            padding: 14px 28px;
+            font-size: 0.95em;
+            color: var(--accent-color);
+            font-weight: 500;
+            transition: all 0.3s ease;
+            animation: fadeInScale 0.5s ease-out;
+            box-shadow: 0 2px 8px rgba(167, 139, 250, 0.08);
+        }
+
+        .trait-card:nth-child(1) { animation-delay: 0.1s; }
+        .trait-card:nth-child(2) { animation-delay: 0.2s; }
+        .trait-card:nth-child(3) { animation-delay: 0.3s; }
+
+        .trait-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 16px rgba(167, 139, 250, 0.15);
+            background: linear-gradient(135deg, rgba(167, 139, 250, 0.18), rgba(196, 181, 253, 0.18));
+            border-color: rgba(167, 139, 250, 0.35);
         }
         
         #result-screen p {
@@ -733,6 +790,7 @@
         <div id="start-screen" class="screen">
             <!-- 顶部居中区域 -->
             <div style="text-align: center; margin-bottom: 40px;">
+                <div style="font-size: 4em; margin-bottom: 15px; line-height: 1;">🐾</div>
                 <p style="font-size: 0.9em; color: var(--secondary-text); font-weight: 300; margin-bottom: 15px;">基于心理学研究的专业测评工具</p>
                 <h1 style="font-size: 2.5em; margin-bottom: 20px;">动物塑测试</h1>
                 <p style="font-size: 1.05em; color: var(--secondary-text); line-height: 1.8; max-width: 90%; margin: 0 auto;">专业的性格评估工具，基于多个经过验证的心理测量量表，通过 60 道精心设计的问题，帮助您科学地了解自己的动物性格原型，探索隐藏在内心深处的本质特征。</p>
@@ -740,6 +798,13 @@
             
             <!-- 中间区域 -->
             <div style="text-align: center; margin-bottom: 50px;">
+                <div style="display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;">
+                    <span class="animal-icon-float" style="font-size: 2.5em; opacity: 0.85; animation-delay: 0s;">🐱</span>
+                    <span class="animal-icon-float" style="font-size: 2.5em; opacity: 0.85; animation-delay: 0.2s;">🐺</span>
+                    <span class="animal-icon-float" style="font-size: 2.5em; opacity: 0.85; animation-delay: 0.4s;">🦊</span>
+                    <span class="animal-icon-float" style="font-size: 2.5em; opacity: 0.85; animation-delay: 0.6s;">🦁</span>
+                    <span class="animal-icon-float" style="font-size: 2.5em; opacity: 0.85; animation-delay: 0.8s;">🐻</span>
+                </div>
                 <h2 style="font-size: 1.8em; margin-bottom: 20px;">探索你的动物塑原型</h2>
                 <p style="font-size: 1.05em; color: var(--secondary-text); line-height: 1.8; max-width: 90%; margin: 0 auto;">通过深度心理学分析，发现你内在的动物特质。每种动物代表着独特的性格维度和行为模式，让我们一起揭开你的性格密码。</p>
             </div>
@@ -788,6 +853,14 @@
                 <button id="next-btn" class="start-button" style="width: 200px; font-size: 1.1em;">下一题</button>
             </div>
         </div>
+
+        <!-- 答题过渡动画屏幕 -->
+        <div id="transition-screen" class="screen hidden" style="justify-content: center; align-items: center;">
+            <div style="text-align: center;">
+                <div id="transition-animal" style="font-size: 6em; margin-bottom: 20px; animation: bounce 1s ease-in-out infinite;"></div>
+                <p style="font-size: 1.2em; color: var(--accent-color); font-weight: 500;">继续探索中...</p>
+            </div>
+        </div>
         
         <!-- Interlude Screen (已隐藏) -->
         <div id="interlude-screen" class="screen hidden">
@@ -799,9 +872,31 @@
 
         <!-- Result Screen -->
         <div id="result-screen" class="screen hidden">
-            <h2>你的动物塑原型是：</h2>
-            <h3 id="result-animal"></h3>
-            <p id="result-description"></p>
+            <h2 style="margin-bottom: 30px;">你的动物塑原型是</h2>
+            
+            <!-- 动物插画 -->
+            <div id="result-animal-illustration" style="font-size: 8em; text-align: center; margin-bottom: 20px; animation: fadeInScale 1s ease-out;"></div>
+            
+            <!-- 动物名称 -->
+            <h3 id="result-animal" style="margin-bottom: 30px;"></h3>
+            
+            <!-- 匹配度进度条 -->
+            <div style="margin-bottom: 40px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.9em; color: var(--secondary-text);">
+                    <span>匹配度</span>
+                    <span id="match-percentage">0%</span>
+                </div>
+                <div style="width: 100%; height: 12px; background-color: rgba(226, 232, 240, 0.5); border-radius: 6px; overflow: hidden;">
+                    <div id="match-progress-bar" style="height: 100%; background: linear-gradient(90deg, var(--accent-color), var(--accent-light)); border-radius: 6px; width: 0%; transition: width 1s ease-out;"></div>
+                </div>
+            </div>
+            
+            <!-- 核心特质卡片 -->
+            <div id="traits-container" style="display: flex; gap: 12px; justify-content: center; margin-bottom: 40px; flex-wrap: wrap;"></div>
+            
+            <!-- 详细解析 -->
+            <p id="result-description" style="margin-bottom: 40px;"></p>
+            
             <div class="button-group">
                 <button id="restart-btn" class="restart-button">再测一次</button>
                 <button id="browse-btn" class="browse-button">浏览所有动物塑</button>
@@ -971,6 +1066,38 @@
         { A: { AES: 2 }, B: { COM: 2 }, C: { SEC: 2 }, D: { DOM: 2 } }
     ];
 
+    // 动物图标映射（emoji）
+    const animalIcons = {
+        "狗": "🐕", "猫": "🐱", "狼": "🐺", "狐": "🦊", "狮": "🦁",
+        "熊": "🐻", "兔": "🐰", "仓鼠": "🐹", "天鹅": "🦢", "鹿": "🦌",
+        "鹰": "🦅", "乌鸦": "🐦‍⬛", "水豚": "🦫", "鲸": "🐋", "鹦鹉": "🦜",
+        "章鱼": "🐙", "鲨鱼": "🦈", "海豚": "🐬", "浣熊": "🦝", "猫鼬": "🐾"
+    };
+
+    // 动物核心特质映射
+    const animalTraits = {
+        "狗": ["忠诚", "热情", "守护"],
+        "猫": ["独立", "优雅", "神秘"],
+        "狼": ["领导", "策略", "团队"],
+        "狐": ["智慧", "机敏", "独立"],
+        "狮": ["自信", "王者", "魅力"],
+        "熊": ["沉稳", "守护", "安全"],
+        "兔": ["警觉", "敏捷", "温和"],
+        "仓鼠": ["专注", "安逸", "收集"],
+        "天鹅": ["优雅", "理想", "忠诚"],
+        "鹿": ["温和", "敏感", "纯净"],
+        "鹰": ["远见", "独立", "格局"],
+        "乌鸦": ["智慧", "好奇", "合作"],
+        "水豚": ["随和", "稳定", "社交"],
+        "鲸": ["深邃", "智慧", "记忆"],
+        "鹦鹉": ["社交", "活泼", "学习"],
+        "章鱼": ["智慧", "适应", "多面"],
+        "鲨鱼": ["专注", "高效", "目标"],
+        "海豚": ["智慧", "合作", "玩乐"],
+        "浣熊": ["机灵", "灵活", "探索"],
+        "猫鼬": ["警惕", "守护", "团队"]
+    };
+
     // 动物原型定义 - 增加原型总分基数，便于归一化
     // DOM:支配, STR:策略, COM:社群, SOL:独行, AGI:灵动, SEC:安稳, AES:审美
     const ANIMAL_ARCHETYPE_TOTAL = 20; // 定义一个原型总分基数
@@ -1001,6 +1128,7 @@
     const startScreen = document.getElementById('start-screen');
     const authScreen = document.getElementById('auth-screen');
     const quizScreen = document.getElementById('quiz-screen');
+    const transitionScreen = document.getElementById('transition-screen');
     const resultScreen = document.getElementById('result-screen');
     const interludeScreen = document.getElementById('interlude-screen');
     const loadingScreen = document.getElementById('loading-screen');
@@ -1028,6 +1156,11 @@
     
     const resultAnimal = document.getElementById('result-animal');
     const resultDescription = document.getElementById('result-description');
+    const resultAnimalIllustration = document.getElementById('result-animal-illustration');
+    const matchProgressBar = document.getElementById('match-progress-bar');
+    const matchPercentage = document.getElementById('match-percentage');
+    const traitsContainer = document.getElementById('traits-container');
+    const transitionAnimal = document.getElementById('transition-animal');
 
     const dimensionKeys = ["DOM", "STR", "COM", "SOL", "AGI", "SEC", "AES"];
     
@@ -1204,8 +1337,12 @@
         Object.keys(animalArchetypes).forEach(animal => {
             const card = document.createElement('div');
             card.className = 'animal-card';
+            const icon = animalIcons[animal] || '🐾';
             card.innerHTML = `
-                <h3>【 ${animal} 】</h3>
+                <h3 style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 1.5em;">${icon}</span>
+                    <span>【 ${animal} 】</span>
+                </h3>
                 <p>${animalArchetypes[animal].desc}</p>
             `;
             animalGuide.appendChild(card);
@@ -1255,7 +1392,7 @@
             }
         }
         
-        const screensToHide = [startScreen, authScreen, resultScreen, interludeScreen, animalGuideScreen, loadingScreen];
+        const screensToHide = [startScreen, authScreen, resultScreen, interludeScreen, animalGuideScreen, loadingScreen, transitionScreen];
         screensToHide.forEach(screen => screen.classList.add('hidden'));
         
         quizScreen.classList.remove('hidden');
@@ -1369,13 +1506,33 @@
             return;
         }
 
-        quizScreen.classList.add('fade-out');
-        setTimeout(() => {
-            currentQuestionIndex++;
-            quizScreen.classList.remove('fade-out');
-            showQuestion();
-            isProcessing = false;
-        }, 400);
+        // 每5题显示过渡动画
+        const nextIndex = currentQuestionIndex + 1;
+        if (nextIndex > 0 && nextIndex % 5 === 0) {
+            // 显示过渡动画
+            const transitionIcons = ['🐱', '🐺', '🦊', '🦁', '🐻', '🐰', '🦢', '🦌', '🦅', '🐋', '🐬', '🦝'];
+            const randomIcon = transitionIcons[Math.floor(Math.random() * transitionIcons.length)];
+            transitionAnimal.textContent = randomIcon;
+            
+            quizScreen.classList.add('hidden');
+            transitionScreen.classList.remove('hidden');
+            
+            setTimeout(() => {
+                transitionScreen.classList.add('hidden');
+                currentQuestionIndex = nextIndex;
+                quizScreen.classList.remove('hidden');
+                showQuestion();
+                isProcessing = false;
+            }, 1500);
+        } else {
+            quizScreen.classList.add('fade-out');
+            setTimeout(() => {
+                currentQuestionIndex = nextIndex;
+                quizScreen.classList.remove('fade-out');
+                showQuestion();
+                isProcessing = false;
+            }, 400);
+        }
     }
     
     function goBack() {
@@ -1461,9 +1618,44 @@
                 }
             });
 
-            // 5. 显示结果
+            // 5. 计算匹配度（60%-100%）
+            // 匹配度 = 100% - (差值平方和 / 最大可能差值) * 40%
+            // 最大可能差值约为每个维度差值的平方和，这里简化为基于minDifference计算
+            const maxPossibleDifference = dimensionKeys.length * Math.pow(ANIMAL_ARCHETYPE_TOTAL, 2);
+            const matchScore = Math.max(60, 100 - (minDifference / maxPossibleDifference) * 40);
+            const matchPercent = Math.round(matchScore);
+
+            // 6. 显示结果
             const resultData = animalArchetypes[bestMatchAnimal];
+            const animalIcon = animalIcons[bestMatchAnimal] || '🐾';
+            const animalTraitsList = animalTraits[bestMatchAnimal] || ['特质1', '特质2', '特质3'];
+            
+            // 显示动物插画
+            resultAnimalIllustration.textContent = animalIcon;
+            
+            // 显示动物名称
             resultAnimal.textContent = `【 ${bestMatchAnimal} 】`;
+            
+            // 显示匹配度
+            matchPercentage.textContent = `${matchPercent}%`;
+            setTimeout(() => {
+                matchProgressBar.style.width = `${matchPercent}%`;
+            }, 100);
+            
+            // 显示核心特质
+            traitsContainer.innerHTML = '';
+            animalTraitsList.forEach((trait, index) => {
+                const traitCard = document.createElement('div');
+                traitCard.className = 'trait-card';
+                traitCard.textContent = trait;
+                traitCard.style.opacity = '0';
+                traitsContainer.appendChild(traitCard);
+                setTimeout(() => {
+                    traitCard.style.opacity = '1';
+                }, 500 + index * 100);
+            });
+            
+            // 显示详细解析
             resultDescription.textContent = resultData.desc;
             
             loadingScreen.classList.add('hidden');
