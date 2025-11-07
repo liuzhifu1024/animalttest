@@ -1062,9 +1062,10 @@
             return true;
         }
         
+        // 只允许大小写字母和数字
         const formatRegex = /^[A-Za-z0-9]{0,10}$/;
         if (!formatRegex.test(code)) {
-            errorMsg.textContent = '仅支持大小写字母和数字';
+            errorMsg.textContent = '授权码错误';
             input.classList.add('error');
             return false;
         }
@@ -1076,6 +1077,17 @@
         }
         
         if (code.length === 10) {
+            // 检查是否同时包含大写字母、小写字母和数字
+            const hasUpperCase = /[A-Z]/.test(code);
+            const hasLowerCase = /[a-z]/.test(code);
+            const hasNumber = /[0-9]/.test(code);
+            
+            if (!hasUpperCase || !hasLowerCase || !hasNumber) {
+                errorMsg.textContent = '授权码错误';
+                input.classList.add('error');
+                return false;
+            }
+            
             errorMsg.textContent = '';
             input.classList.remove('error');
             // 自动聚焦确认按钮
@@ -1091,10 +1103,19 @@
 
     // 验证授权码
     function validateAuthCode(code) {
-        // 格式验证
+        // 格式验证：必须是10位，且同时包含大写字母、小写字母和数字
         const formatRegex = /^[A-Za-z0-9]{10}$/;
         if (!formatRegex.test(code)) {
-            return { valid: false, message: '授权码格式错误' };
+            return { valid: false, message: '授权码错误' };
+        }
+
+        // 检查是否同时包含大写字母、小写字母和数字
+        const hasUpperCase = /[A-Z]/.test(code);
+        const hasLowerCase = /[a-z]/.test(code);
+        const hasNumber = /[0-9]/.test(code);
+        
+        if (!hasUpperCase || !hasLowerCase || !hasNumber) {
+            return { valid: false, message: '授权码错误' };
         }
 
         // 查询授权码数据
@@ -1113,12 +1134,12 @@
 
         // 检查是否过期
         if (Date.now() > codeData.expiresAt) {
-            return { valid: false, message: '授权码已过期' };
+            return { valid: false, message: '授权码错误' };
         }
 
         // 检查使用次数
         if (codeData.useCount >= 2) {
-            return { valid: false, message: '授权码已达使用上限，仅可查看历史测试报告' };
+            return { valid: false, message: '授权码错误' };
         }
 
         return { valid: true, message: '' };
