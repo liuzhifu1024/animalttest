@@ -76,6 +76,9 @@
             position: relative;
             transform: perspective(1000px) rotateX(0deg);
             -webkit-transform: perspective(1000px) rotateX(0deg); /* Safari兼容 */
+            max-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         #quiz-container::before {
@@ -96,6 +99,8 @@
             min-height: 450px;
             display: flex;
             flex-direction: column;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch; /* iOS平滑滚动 */
         }
 
         @keyframes fadeIn {
@@ -260,6 +265,7 @@
             padding: 0;
             margin: 0 0 20px 0;
             flex-grow: 1;
+            touch-action: pan-y; /* 允许垂直滚动 */
         }
 
         .option-item {
@@ -278,6 +284,7 @@
             will-change: transform, background-color;
             -webkit-user-select: none; /* 禁止iOS选中文字 */
             user-select: none;
+            touch-action: manipulation; /* 优化触摸响应，允许滚动 */
         }
 
         .option-item::before {
@@ -667,10 +674,17 @@
                 padding-bottom: 50px;
                 padding-bottom: calc(50px + constant(safe-area-inset-bottom)); /* iOS安全区域适配 */
                 padding-bottom: calc(50px + env(safe-area-inset-bottom));
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
             }
             .screen {
                 padding: 25px 20px;
                 min-height: auto;
+                max-height: calc(100vh - 20px);
+            }
+            #quiz-screen {
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
             }
             h1 { font-size: 1.8em; }
             h2 { font-size: 1.4em; }
@@ -1139,7 +1153,7 @@
 
         // 检查使用次数
         if (codeData.useCount >= 2) {
-            return { valid: false, message: '授权码错误' };
+            return { valid: false, message: '使用次数达上限' };
         }
 
         return { valid: true, message: '' };
@@ -1287,12 +1301,32 @@
                     li.classList.add('selected');
                 }
                 li.innerHTML = `<span class="option-prefix">${key}</span><span class="option-text">${currentQuestion.options[key]}</span>`;
+                
+                // 触摸事件处理：区分点击和滚动
+                (function(optionKey, optionElement) {
+                    let touchStartY = 0;
+                    let touchStartTime = 0;
+                    
+                    optionElement.addEventListener('touchstart', (e) => {
+                        touchStartY = e.touches[0].clientY;
+                        touchStartTime = Date.now();
+                    }, { passive: true });
+                    
+                    optionElement.addEventListener('touchend', (e) => {
+                        const touchEndY = e.changedTouches[0].clientY;
+                        const touchEndTime = Date.now();
+                        const deltaY = Math.abs(touchEndY - touchStartY);
+                        const deltaTime = touchEndTime - touchStartTime;
+                        
+                        // 如果移动距离小于10px且时间小于300ms，认为是点击
+                        if (deltaY < 10 && deltaTime < 300) {
+                            e.preventDefault();
+                            selectOption(optionKey, optionElement);
+                        }
+                    });
+                })(key, li);
+                
                 li.addEventListener('click', () => selectOption(key, li));
-                // 为iOS添加触摸事件支持
-                li.addEventListener('touchstart', (e) => {
-                    e.preventDefault(); // 防止双击缩放
-                    selectOption(key, li);
-                });
                 optionList.appendChild(li);
             }
         });
