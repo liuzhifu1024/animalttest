@@ -660,12 +660,21 @@
             background: var(--card-bg);
             border-radius: 20px;
             padding: 30px;
+            padding-top: 50px;
             max-width: 90%;
             width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
             animation: slideUp 0.3s ease;
             -webkit-animation: slideUp 0.3s ease;
             position: relative;
+        }
+
+        .modal-content p {
+            white-space: pre-line;
+            line-height: 1.8;
         }
 
         @keyframes slideUp {
@@ -683,25 +692,38 @@
 
         .modal-close {
             position: absolute;
-            top: 15px;
-            right: 15px;
-            background: none;
-            border: none;
-            font-size: 1.5em;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px solid var(--border-color);
+            font-size: 2em;
             color: var(--secondary-text);
             cursor: pointer;
-            width: 30px;
-            height: 30px;
+            width: 56px;
+            height: 56px;
+            min-width: 56px;
+            min-height: 56px;
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 50%;
             transition: all 0.3s ease;
+            z-index: 10;
+            -webkit-tap-highlight-color: transparent;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            touch-action: manipulation;
+            user-select: none;
         }
 
         .modal-close:hover {
             background-color: var(--hover-bg);
             color: var(--accent-color);
+            border-color: var(--accent-color);
+            transform: scale(1.1);
+        }
+
+        .modal-close:active {
+            transform: scale(0.95);
         }
 
         .modal-content h3 {
@@ -812,6 +834,9 @@
             <!-- 下方区域 -->
             <div style="text-align: center;">
                 <button id="start-btn" class="start-button" style="width: 280px; font-size: 1.3em; padding: 20px 30px;">开始测试</button>
+                <button id="theory-btn" class="browse-button" style="width: 200px; margin-top: 20px; font-size: 1em; padding: 12px 25px;">
+                    <span style="margin-right: 8px;">📚</span>测试原理
+                </button>
             </div>
             <div class="screen-footer">动物塑</div>
         </div>
@@ -880,14 +905,19 @@
             <!-- 动物名称 -->
             <h3 id="result-animal" style="margin-bottom: 30px;"></h3>
             
-            <!-- 匹配度进度条 -->
-            <div style="margin-bottom: 40px;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.9em; color: var(--secondary-text);">
-                    <span>匹配度</span>
-                    <span id="match-percentage">0%</span>
-                </div>
-                <div style="width: 100%; height: 12px; background-color: rgba(226, 232, 240, 0.5); border-radius: 6px; overflow: hidden;">
-                    <div id="match-progress-bar" style="height: 100%; background: linear-gradient(90deg, var(--accent-color), var(--accent-light)); border-radius: 6px; width: 0%; transition: width 1s ease-out;"></div>
+            <!-- 匹配度环形进度条 -->
+            <div style="margin-bottom: 40px; display: flex; justify-content: center;">
+                <div style="position: relative; width: 200px; height: 200px;">
+                    <svg id="circular-progress" width="200" height="200" style="transform: rotate(-90deg);">
+                        <circle cx="100" cy="100" r="85" fill="none" stroke="rgba(226, 232, 240, 0.5)" stroke-width="12"></circle>
+                        <circle id="progress-circle" cx="100" cy="100" r="85" fill="none" stroke="var(--accent-color)" stroke-width="12" 
+                                stroke-linecap="round" stroke-dasharray="534" stroke-dashoffset="534" 
+                                style="transition: stroke-dashoffset 1.5s ease-out, stroke 0.3s ease;"></circle>
+                    </svg>
+                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+                        <div id="match-percentage" style="font-size: 2.5em; font-weight: 700; color: var(--accent-color); line-height: 1;">0%</div>
+                        <div id="match-level" style="font-size: 0.9em; color: var(--secondary-text); margin-top: 5px;">匹配度</div>
+                    </div>
                 </div>
             </div>
             
@@ -896,6 +926,24 @@
             
             <!-- 详细解析 -->
             <p id="result-description" style="margin-bottom: 40px;"></p>
+            
+            <!-- 雷达图 -->
+            <div style="margin-bottom: 40px;">
+                <h3 style="text-align: center; font-size: 1.3em; color: var(--accent-color); margin-bottom: 20px;">动物塑性格测试维度对比雷达图</h3>
+                <div style="display: flex; justify-content: center; margin-bottom: 20px;">
+                    <div id="radar-chart-container" style="position: relative; width: 100%; max-width: 500px; height: 550px;"></div>
+                </div>
+                <div style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; font-size: 0.9em;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="display: inline-block; width: 16px; height: 16px; background: #FF8C42; border-radius: 2px;"></span>
+                        <span>用户性格维度</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="display: inline-block; width: 16px; height: 16px; background: #4A90E2; border-radius: 2px;"></span>
+                        <span>动物原型向量</span>
+                    </div>
+                </div>
+            </div>
             
             <div class="button-group">
                 <button id="restart-btn" class="restart-button">再测一次</button>
@@ -1136,6 +1184,7 @@
     const modalOverlay = document.getElementById('modal-overlay');
 
     const startBtn = document.getElementById('start-btn');
+    const theoryBtn = document.getElementById('theory-btn');
     const restartBtn = document.getElementById('restart-btn');
     const backBtn = document.getElementById('back-btn');
     const nextBtn = document.getElementById('next-btn');
@@ -1159,8 +1208,11 @@
     const resultAnimalIllustration = document.getElementById('result-animal-illustration');
     const matchProgressBar = document.getElementById('match-progress-bar');
     const matchPercentage = document.getElementById('match-percentage');
+    const matchLevel = document.getElementById('match-level');
+    const progressCircle = document.getElementById('progress-circle');
     const traitsContainer = document.getElementById('traits-container');
     const transitionAnimal = document.getElementById('transition-animal');
+    const radarChartContainer = document.getElementById('radar-chart-container');
 
     const dimensionKeys = ["DOM", "STR", "COM", "SOL", "AGI", "SEC", "AES"];
     
@@ -1552,6 +1604,63 @@
     function showBusinessModal() {
         showModal('商务合作', '商务合作，请联系客服，微信：renzhi6767', true);
     }
+
+    function showTheoryModal() {
+        const theoryContent = `
+            <div style="text-align: left; line-height: 1.8;">
+                <h3 style="text-align: center; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                    <span style="font-size: 1.5em;">📚</span>
+                    <span>动物塑性格测试的科学原理</span>
+                </h3>
+                <div style="max-height: 60vh; overflow-y: auto; padding-right: 10px;">
+                    <p style="margin-bottom: 15px;"><strong>动物塑性格测试的核心是基于多维度性格评估模型与向量相似度匹配算法</strong>，通过标准化测试流程与量化分析，实现用户性格与动物原型的科学映射。</p>
+                    
+                    <h4 style="color: var(--accent-color); margin-top: 25px; margin-bottom: 10px;">一、性格维度构建：7 维核心特质全覆盖</h4>
+                    <p style="margin-bottom: 10px;">测试以心理学特质理论为基础，提炼出 7 个覆盖人类核心性格的关键维度：</p>
+                    <ul style="margin-left: 20px; margin-bottom: 15px;">
+                        <li><strong>支配力（DOM）</strong>：领导力、掌控欲与存在感</li>
+                        <li><strong>策略性（STR）</strong>：洞察力、规划力与智取倾向</li>
+                        <li><strong>社群性（COM）</strong>：社交欲、合作意愿与群体依赖度</li>
+                        <li><strong>独行性（SOL）</strong>：独立性、独处需求与自我满足感</li>
+                        <li><strong>灵动性（AGI）</strong>：适应性、好奇心与灵活多变性</li>
+                        <li><strong>安稳性（SEC）</strong>：安全感需求、风险规避倾向与舒适区依赖</li>
+                        <li><strong>审美性（AES）</strong>：美感追求、精神契合需求与优雅特质</li>
+                    </ul>
+                    
+                    <h4 style="color: var(--accent-color); margin-top: 25px; margin-bottom: 10px;">二、量化评估机制</h4>
+                    <p style="margin-bottom: 10px;">测试通过标准化量化流程，将用户的主观选择转化为可计算的客观数据：</p>
+                    <ol style="margin-left: 20px; margin-bottom: 15px;">
+                        <li>单题选项定向赋分：每个选项对应 1 个核心维度，每选择 1 个选项即获得该维度 2 分</li>
+                        <li>总分归一化处理：通过归一化公式将得分映射至 0-20 分区间</li>
+                        <li>性格向量构建：归一化后的 7 个维度得分形成用户专属的"性格向量"</li>
+                    </ol>
+                    
+                    <h4 style="color: var(--accent-color); margin-top: 25px; margin-bottom: 10px;">三、相似度匹配算法</h4>
+                    <p style="margin-bottom: 10px;">基于动物行为学与性格特质的对应关系，为 20 种动物原型建立标准化"性格向量库"：</p>
+                    <ol style="margin-left: 20px; margin-bottom: 15px;">
+                        <li>原型向量标定：每种动物原型均预设 7 个维度的权重值</li>
+                        <li>差值平方和计算：通过公式计算用户与动物原型的差异，总差值越小代表性格契合度越高</li>
+                        <li>匹配度量化转换：将差值转化为直观的百分比（30%-98%区间）</li>
+                        <li>结果优化呈现：结合匹配百分比分层，搭配可视化展示与特质解读</li>
+                    </ol>
+                    
+                    <p style="margin-top: 20px; font-style: italic; color: var(--secondary-text);">
+                        综上，动物塑性格测试通过"维度构建标准化、评估过程量化、匹配算法科学化"的三层设计，将抽象的性格特质转化为具象的动物原型，既保证了测试的客观性与说服力，又兼顾了结果的易理解性与趣味性。
+                    </p>
+                </div>
+            </div>
+        `;
+        
+        // 创建模态框内容
+        const modalTitle = document.getElementById('modal-title');
+        const modalText = document.getElementById('modal-text');
+        
+        modalTitle.innerHTML = '';
+        modalText.innerHTML = theoryContent;
+        
+        modalOverlay.classList.add('show');
+        modalOverlay.querySelector('.modal-close').style.display = 'flex';
+    }
     
     function showAllAnimals() {
         resultScreen.classList.add('hidden');
@@ -1618,12 +1727,75 @@
                 }
             });
 
-            // 5. 计算匹配度（60%-100%）
-            // 匹配度 = 100% - (差值平方和 / 最大可能差值) * 40%
-            // 最大可能差值约为每个维度差值的平方和，这里简化为基于minDifference计算
-            const maxPossibleDifference = dimensionKeys.length * Math.pow(ANIMAL_ARCHETYPE_TOTAL, 2);
-            const matchScore = Math.max(60, 100 - (minDifference / maxPossibleDifference) * 40);
+<<<<<<< HEAD
+            // 5. 计算匹配度（30%-98%区间，基于新方案）
+            // 根据文档《动物塑性格测试匹配百分比设计方案.md》和实际数据范围修正：
+            // 步骤1：计算维度差值平方和（已完成，minDifference就是总差值）
+            // 步骤2：最大可能总差值 - 修正为基于实际得分范围（0-5分）
+            //   实际观察：用户归一化得分和动物原型向量都在0-5分范围内
+            //   单个维度最大差值 = 5（如用户0分、动物5分，或反之）
+            //   单个维度最大差值平方 = 25
+            //   7个维度总最大差值 = 25 × 7 = 175
+            // 步骤3：匹配百分比 = 100% -（总差值 ÷ 175）× 100%
+            
+            const maxPossibleDifference = 175; // 7 × 25 = 175（基于实际得分范围0-5分）
+            
+            // 计算匹配百分比（四舍五入保留整数）
+            let matchScore = 100 - (minDifference / maxPossibleDifference) * 100;
+            
+            // 边界值优化（根据文档）：
+            // - 最低百分比设为30%：避免低百分比打击用户积极性
+            // - 最高百分比设为98%：预留2%的"完美空间"，增强高匹配的稀缺感
+            if (matchScore < 30) {
+                matchScore = 30;
+            } else if (matchScore > 98) {
+                matchScore = 98;
+            }
+            
+            // 四舍五入保留整数（避免小数影响用户理解）
             const matchPercent = Math.round(matchScore);
+            
+            // 调试信息（可在浏览器控制台查看，帮助排查问题）
+            console.log('=== 匹配度计算调试信息 ===');
+            console.log('最佳匹配动物：', bestMatchAnimal);
+            console.log('最小差值平方和（总差值）：', minDifference.toFixed(2));
+            console.log('最大可能总差值（基于0-5分范围）：', maxPossibleDifference);
+            console.log('计算公式：100% - (总差值 ÷ ' + maxPossibleDifference + ') × 100%');
+            console.log('计算出的匹配度（未限制）：', matchScore.toFixed(2) + '%');
+            console.log('边界值限制后：', matchScore.toFixed(2) + '%');
+            console.log('最终匹配度（四舍五入）：', matchPercent + '%');
+            console.log('用户归一化得分（总和应为20）：', normalizedScores);
+            const normalizedSum = dimensionKeys.reduce((sum, key) => sum + (normalizedScores[key] || 0), 0);
+            console.log('归一化得分总和：', normalizedSum.toFixed(2));
+            console.log('动物原型向量：', animalArchetypes[bestMatchAnimal].vector);
+            const animalSum = dimensionKeys.reduce((sum, key) => sum + (animalArchetypes[bestMatchAnimal].vector[key] || 0), 0);
+            console.log('动物原型向量总和：', animalSum);
+            console.log('各维度差值详情：');
+            dimensionKeys.forEach(key => {
+                const userVal = normalizedScores[key] || 0;
+                const animalVal = animalArchetypes[bestMatchAnimal].vector[key] || 0;
+                const diff = userVal - animalVal;
+                const diffSquared = diff * diff;
+                console.log(`  ${key}: 用户=${userVal.toFixed(2)}, 动物=${animalVal}, 差值=${diff.toFixed(2)}, 差值²=${diffSquared.toFixed(2)}`);
+            });
+            console.log('========================');
+            
+            // 确定匹配度分层和颜色
+            let matchLevelText = '';
+            let matchColor = '';
+            if (matchPercent >= 90) {
+                matchLevelText = '天选匹配';
+                matchColor = '#6b46c1'; // 深紫色
+            } else if (matchPercent >= 70) {
+                matchLevelText = '高度契合';
+                matchColor = '#a78bfa'; // 浅紫色
+            } else if (matchPercent >= 50) {
+                matchLevelText = '中度契合';
+                matchColor = '#93c5fd'; // 浅蓝色
+            } else {
+                matchLevelText = '潜力契合';
+                matchColor = '#9ca3af'; // 浅灰色
+            }
 
             // 6. 显示结果
             const resultData = animalArchetypes[bestMatchAnimal];
@@ -1636,11 +1808,23 @@
             // 显示动物名称
             resultAnimal.textContent = `【 ${bestMatchAnimal} 】`;
             
-            // 显示匹配度
+            // 显示匹配度（环形进度条）
             matchPercentage.textContent = `${matchPercent}%`;
+            matchLevel.textContent = matchLevelText;
+            matchPercentage.style.color = matchColor;
+            
+            // 计算环形进度条的stroke-dashoffset
+            const circumference = 2 * Math.PI * 85; // r=85
+            const offset = circumference - (matchPercent / 100) * circumference;
+            
+            // 更新环形进度条
+            progressCircle.setAttribute('stroke', matchColor);
             setTimeout(() => {
-                matchProgressBar.style.width = `${matchPercent}%`;
+                progressCircle.style.strokeDashoffset = offset;
             }, 100);
+            
+            // 保存归一化得分和最佳匹配动物向量，用于雷达图
+            const bestMatchVector = animalArchetypes[bestMatchAnimal].vector;
             
             // 显示核心特质
             traitsContainer.innerHTML = '';
@@ -1658,10 +1842,170 @@
             // 显示详细解析
             resultDescription.textContent = resultData.desc;
             
+            // 绘制雷达图
+            drawRadarChart(normalizedScores, bestMatchVector, matchPercent);
+            
             loadingScreen.classList.add('hidden');
             resultScreen.classList.remove('hidden');
             isProcessing = false;
         }, 1500);
+    }
+
+    // 绘制雷达图
+    function drawRadarChart(userScores, animalVector, matchPercent) {
+        const dimensionLabels = {
+            'DOM': '支配力',
+            'STR': '策略性',
+            'COM': '社群性',
+            'SOL': '独行性',
+            'AGI': '灵动性',
+            'SEC': '安稳性',
+            'AES': '审美性'
+        };
+        
+        const centerX = 250;
+        const centerY = 250;
+        const radius = 180;
+        const numDimensions = dimensionKeys.length;
+        const angleStep = (2 * Math.PI) / numDimensions;
+        
+        // 清空容器
+        radarChartContainer.innerHTML = '';
+        
+        // 创建SVG（增加高度以容纳下方匹配度文字）
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('width', '500');
+        svg.setAttribute('height', '550');
+        svg.setAttribute('viewBox', '0 0 500 550');
+        svg.style.position = 'absolute';
+        svg.style.top = '0';
+        svg.style.left = '0';
+        
+        // 绘制网格线（每5分一条）
+        const gridLevels = [5, 10, 15, 20];
+        gridLevels.forEach(level => {
+            const gridRadius = (level / 20) * radius;
+            const points = [];
+            for (let i = 0; i < numDimensions; i++) {
+                const angle = i * angleStep - Math.PI / 2;
+                const x = centerX + gridRadius * Math.cos(angle);
+                const y = centerY + gridRadius * Math.sin(angle);
+                points.push(`${x},${y}`);
+            }
+            const gridPolygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+            gridPolygon.setAttribute('points', points.join(' '));
+            gridPolygon.setAttribute('fill', 'none');
+            gridPolygon.setAttribute('stroke', 'rgba(226, 232, 240, 0.5)');
+            gridPolygon.setAttribute('stroke-width', '1');
+            svg.appendChild(gridPolygon);
+        });
+        
+        // 绘制坐标轴和标签
+        dimensionKeys.forEach((key, index) => {
+            const angle = index * angleStep - Math.PI / 2;
+            const x = centerX + radius * Math.cos(angle);
+            const y = centerY + radius * Math.sin(angle);
+            
+            // 坐标轴
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', centerX);
+            line.setAttribute('y1', centerY);
+            line.setAttribute('x2', x);
+            line.setAttribute('y2', y);
+            line.setAttribute('stroke', 'rgba(226, 232, 240, 0.5)');
+            line.setAttribute('stroke-width', '1');
+            svg.appendChild(line);
+            
+            // 标签
+            const labelX = centerX + (radius + 30) * Math.cos(angle);
+            const labelY = centerY + (radius + 30) * Math.sin(angle);
+            const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            text.setAttribute('x', labelX);
+            text.setAttribute('y', labelY);
+            text.setAttribute('text-anchor', 'middle');
+            text.setAttribute('dominant-baseline', 'middle');
+            text.setAttribute('font-size', '14');
+            text.setAttribute('fill', 'var(--secondary-text)');
+            text.textContent = dimensionLabels[key];
+            svg.appendChild(text);
+        });
+        
+        // 绘制动物原型向量（使用蓝色，对比度更大）
+        const animalPoints = [];
+        dimensionKeys.forEach((key, index) => {
+            const value = animalVector[key] || 0;
+            const normalizedValue = (value / 20) * radius;
+            const angle = index * angleStep - Math.PI / 2;
+            const x = centerX + normalizedValue * Math.cos(angle);
+            const y = centerY + normalizedValue * Math.sin(angle);
+            animalPoints.push(`${x},${y}`);
+        });
+        const animalPolygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+        animalPolygon.setAttribute('points', animalPoints.join(' '));
+        animalPolygon.setAttribute('fill', 'rgba(74, 144, 226, 0.4)');
+        animalPolygon.setAttribute('stroke', '#4A90E2');
+        animalPolygon.setAttribute('stroke-width', '2');
+        svg.appendChild(animalPolygon);
+        
+        // 绘制用户性格向量（使用橙色，对比度更大）
+        const userPoints = [];
+        dimensionKeys.forEach((key, index) => {
+            const value = userScores[key] || 0;
+            const normalizedValue = (value / 20) * radius;
+            const angle = index * angleStep - Math.PI / 2;
+            const x = centerX + normalizedValue * Math.cos(angle);
+            const y = centerY + normalizedValue * Math.sin(angle);
+            userPoints.push(`${x},${y}`);
+        });
+        const userPolygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+        userPolygon.setAttribute('points', userPoints.join(' '));
+        userPolygon.setAttribute('fill', 'rgba(255, 140, 66, 0.6)');
+        userPolygon.setAttribute('stroke', '#FF8C42');
+        userPolygon.setAttribute('stroke-width', '2');
+        svg.appendChild(userPolygon);
+        
+        // 标注得分
+        dimensionKeys.forEach((key, index) => {
+            const userValue = userScores[key] || 0;
+            const animalValue = animalVector[key] || 0;
+            const angle = index * angleStep - Math.PI / 2;
+            
+            // 用户得分标注（橙色）
+            const userRadius = (userValue / 20) * radius;
+            const userX = centerX + userRadius * Math.cos(angle);
+            const userY = centerY + userRadius * Math.sin(angle);
+            const userCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            userCircle.setAttribute('cx', userX);
+            userCircle.setAttribute('cy', userY);
+            userCircle.setAttribute('r', '4');
+            userCircle.setAttribute('fill', '#FF8C42');
+            svg.appendChild(userCircle);
+            
+            // 动物得分标注（蓝色）
+            const animalRadius = (animalValue / 20) * radius;
+            const animalX = centerX + animalRadius * Math.cos(angle);
+            const animalY = centerY + animalRadius * Math.sin(angle);
+            const animalCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            animalCircle.setAttribute('cx', animalX);
+            animalCircle.setAttribute('cy', animalY);
+            animalCircle.setAttribute('r', '4');
+            animalCircle.setAttribute('fill', '#4A90E2');
+            svg.appendChild(animalCircle);
+        });
+        
+        // 在雷达图下方边缘显示匹配度（不遮挡图形）
+        const matchText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        matchText.setAttribute('x', centerX);
+        matchText.setAttribute('y', centerY + radius + 50);
+        matchText.setAttribute('text-anchor', 'middle');
+        matchText.setAttribute('dominant-baseline', 'middle');
+        matchText.setAttribute('font-size', '16');
+        matchText.setAttribute('font-weight', 'bold');
+        matchText.setAttribute('fill', 'var(--accent-color)');
+        matchText.textContent = `匹配度：${matchPercent}%`;
+        svg.appendChild(matchText);
+        
+        radarChartContainer.appendChild(svg);
     }
 
     // 事件监听
@@ -1689,6 +2033,12 @@
     });
 
     businessBtn.addEventListener('click', showBusinessModal);
+
+    theoryBtn.addEventListener('click', showTheoryModal);
+    theoryBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        showTheoryModal();
+    });
 
     backToStartBtn.addEventListener('click', () => {
         authScreen.classList.add('hidden');
