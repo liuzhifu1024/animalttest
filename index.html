@@ -827,6 +827,24 @@
                 visibility: visible !important;
                 opacity: 1 !important;
             }
+            
+            /* 移动端雷达图区域间距优化 */
+            .radar-section {
+                margin-bottom: 2px !important;
+            }
+            
+            .radar-title {
+                margin-bottom: 1px !important;
+            }
+            
+            .radar-chart-wrapper {
+                min-height: 450px !important;
+                margin-bottom: 1px !important;
+            }
+            
+            .radar-legend {
+                margin-top: 0 !important;
+            }
         }
 
     </style>
@@ -960,12 +978,12 @@
             <p id="result-description" style="margin-bottom: 40px;"></p>
             
             <!-- 雷达图 -->
-            <div style="margin-bottom: 40px; width: 100%; max-width: 100%; box-sizing: border-box; position: relative; z-index: 1;">
-                <h3 style="text-align: center; font-size: 1.3em; color: var(--accent-color); margin-bottom: 20px;">动物塑性格测试维度对比雷达图</h3>
-                <div style="display: flex; justify-content: center; margin-bottom: 20px; width: 100%; max-width: 100%; box-sizing: border-box; position: relative; min-height: 550px;">
+            <div class="radar-section" style="margin-bottom: 40px; width: 100%; max-width: 100%; box-sizing: border-box; position: relative; z-index: 1;">
+                <h3 class="radar-title" style="text-align: center; font-size: 1.3em; color: var(--accent-color); margin-bottom: 20px;">动物塑性格测试维度对比雷达图</h3>
+                <div class="radar-chart-wrapper" style="display: flex; justify-content: center; margin-bottom: 20px; width: 100%; max-width: 100%; box-sizing: border-box; position: relative; min-height: 550px;">
                     <div id="radar-chart-container" style="position: relative; width: 100%; max-width: 500px; min-width: 300px; height: 550px; box-sizing: border-box; overflow: visible;"></div>
                 </div>
-                <div style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; font-size: 0.9em;">
+                <div class="radar-legend" style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; font-size: 0.9em;">
                     <div style="display: flex; align-items: center; gap: 8px;">
                         <span style="display: inline-block; width: 16px; height: 16px; background: #FF8C42; border-radius: 2px;"></span>
                         <span>用户性格维度</span>
