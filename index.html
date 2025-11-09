@@ -756,6 +756,14 @@
                 overflow-y: auto;
                 -webkit-overflow-scrolling: touch;
             }
+            
+            /* 移动端"查看测试报告"按钮样式 */
+            #view-report-btn {
+                bottom: calc(15px + env(safe-area-inset-bottom)) !important;
+                right: 15px !important;
+                padding: 10px 16px !important;
+                font-size: 0.85em !important;
+            }
             .screen {
                 padding: 25px 20px;
                 min-height: auto;
@@ -801,6 +809,24 @@
             #confirm-auth-btn {
                 width: 100%;
             }
+            
+            /* 移动端雷达图容器样式优化 */
+            #radar-chart-container {
+                width: 100% !important;
+                max-width: 100% !important;
+                height: 450px !important;
+                position: relative !important;
+                overflow: visible !important;
+            }
+            
+            #radar-chart-container svg {
+                width: 100% !important;
+                height: 450px !important;
+                max-width: 100% !important;
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+            }
         }
 
     </style>
@@ -838,6 +864,12 @@
                     <span style="margin-right: 8px;">📚</span>测试原理
                 </button>
             </div>
+            
+            <!-- 查看测试报告按钮（右下角） -->
+            <button id="view-report-btn" class="browse-button" style="position: fixed; bottom: 20px; right: 20px; padding: 12px 20px; font-size: 0.95em; z-index: 100; display: none; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);">
+                <span style="margin-right: 6px;">📊</span>查看测试报告
+            </button>
+            
             <div class="screen-footer">动物塑</div>
         </div>
 
@@ -928,10 +960,10 @@
             <p id="result-description" style="margin-bottom: 40px;"></p>
             
             <!-- 雷达图 -->
-            <div style="margin-bottom: 40px;">
+            <div style="margin-bottom: 40px; width: 100%; max-width: 100%; box-sizing: border-box; position: relative; z-index: 1;">
                 <h3 style="text-align: center; font-size: 1.3em; color: var(--accent-color); margin-bottom: 20px;">动物塑性格测试维度对比雷达图</h3>
-                <div style="display: flex; justify-content: center; margin-bottom: 20px;">
-                    <div id="radar-chart-container" style="position: relative; width: 100%; max-width: 500px; height: 550px;"></div>
+                <div style="display: flex; justify-content: center; margin-bottom: 20px; width: 100%; max-width: 100%; box-sizing: border-box; position: relative; min-height: 550px;">
+                    <div id="radar-chart-container" style="position: relative; width: 100%; max-width: 500px; min-width: 300px; height: 550px; box-sizing: border-box; overflow: visible;"></div>
                 </div>
                 <div style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; font-size: 0.9em;">
                     <div style="display: flex; align-items: center; gap: 8px;">
@@ -945,10 +977,18 @@
                 </div>
             </div>
             
-            <div class="button-group">
-                <button id="restart-btn" class="restart-button">再测一次</button>
+            <div class="button-group" style="position: relative; z-index: 0;">
+                <button id="restart-btn" class="restart-button">返回首页</button>
                 <button id="browse-btn" class="browse-button">浏览所有动物塑</button>
             </div>
+            
+            <!-- 结果页底部按钮和提示 -->
+            <div style="text-align: center; margin-top: 40px; margin-bottom: 20px; position: relative; z-index: 0;">
+                <button id="result-theory-btn" class="browse-button" style="width: 200px; font-size: 1em; padding: 12px 25px;">
+                    <span style="margin-right: 8px;">📚</span>测试原理
+                </button>
+            </div>
+            <p style="text-align: center; color: var(--secondary-text); font-size: 0.9em; margin-bottom: 20px; font-style: italic;">测试结果仅供参考</p>
             <div class="screen-footer">动物塑解析 · 完成</div>
         </div>
 
@@ -1196,6 +1236,8 @@
     const backToStartBtn = document.getElementById('back-to-start-btn');
     const authCodeInput = document.getElementById('auth-code-input');
     const authErrorMsg = document.getElementById('auth-error-msg');
+    const viewReportBtn = document.getElementById('view-report-btn');
+    const resultTheoryBtn = document.getElementById('result-theory-btn');
     
     const questionTitle = document.getElementById('question-title');
     const optionList = document.getElementById('option-list');
@@ -1538,6 +1580,16 @@
         element.classList.add('selected');
         
         saveProgress();
+        
+        // 自动进入下一题（延迟一小段时间，让用户看到选择反馈）
+        setTimeout(() => {
+            if (currentQuestionIndex < quizData.length - 1) {
+                goToNextQuestion();
+            } else {
+                // 最后一题，显示结果
+                showResult();
+            }
+        }, 300);
     }
 
     function goToNextQuestion() {
@@ -1670,6 +1722,94 @@
     function backToResult() {
         animalGuideScreen.classList.add('hidden');
         resultScreen.classList.remove('hidden');
+    }
+    
+    // 返回首页（确保所有屏幕都隐藏）
+    function goToHomePage() {
+        // 隐藏所有屏幕
+        const allScreens = [authScreen, quizScreen, transitionScreen, resultScreen, interludeScreen, loadingScreen, animalGuideScreen];
+        allScreens.forEach(screen => {
+            screen.classList.add('hidden');
+            screen.classList.remove('fade-out');
+        });
+        
+        // 显示首页
+        startScreen.classList.remove('hidden');
+        
+        // 检查是否有测试结果，显示"查看测试报告"按钮
+        checkAndShowReportButton();
+    }
+    
+    // 检查并显示"查看测试报告"按钮
+    function checkAndShowReportButton() {
+        const lastResult = localStorage.getItem('last_test_result');
+        if (lastResult && viewReportBtn) {
+            viewReportBtn.style.display = 'block';
+        } else if (viewReportBtn) {
+            viewReportBtn.style.display = 'none';
+        }
+    }
+    
+    // 恢复并显示最近一次测试结果
+    function restoreTestResult() {
+        const lastResultStr = localStorage.getItem('last_test_result');
+        if (!lastResultStr) {
+            showModal('提示', '暂无测试报告，请先完成测试。');
+            return;
+        }
+        
+        try {
+            const testResult = JSON.parse(lastResultStr);
+            
+            // 显示动物插画
+            resultAnimalIllustration.textContent = testResult.animalIcon;
+            
+            // 显示动物名称
+            resultAnimal.textContent = `【 ${testResult.animalName} 】`;
+            
+            // 显示匹配度
+            matchPercentage.textContent = `${testResult.matchPercent}%`;
+            matchLevel.textContent = testResult.matchLevelText;
+            matchPercentage.style.color = testResult.matchColor;
+            
+            // 更新环形进度条
+            const circumference = 2 * Math.PI * 85;
+            const offset = circumference - (testResult.matchPercent / 100) * circumference;
+            progressCircle.setAttribute('stroke', testResult.matchColor);
+            progressCircle.style.strokeDashoffset = offset;
+            
+            // 显示核心特质
+            traitsContainer.innerHTML = '';
+            testResult.traits.forEach((trait, index) => {
+                const traitCard = document.createElement('div');
+                traitCard.className = 'trait-card';
+                traitCard.textContent = trait;
+                traitCard.style.opacity = '0';
+                traitsContainer.appendChild(traitCard);
+                setTimeout(() => {
+                    traitCard.style.opacity = '1';
+                }, 500 + index * 100);
+            });
+            
+            // 显示详细解析
+            resultDescription.textContent = testResult.description;
+            
+            // 切换到结果页
+            startScreen.classList.add('hidden');
+            authScreen.classList.add('hidden');
+            quizScreen.classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+            
+            // 等待结果页显示后再绘制雷达图，确保容器可见
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    drawRadarChart(testResult.normalizedScores, testResult.animalVector, testResult.matchPercent);
+                });
+            });
+        } catch (e) {
+            console.error('恢复测试结果失败:', e);
+            showModal('提示', '测试报告数据异常，请重新测试。');
+        }
     }
     
     // 使用差值平方和最小法计算结果
@@ -1841,11 +1981,36 @@
             // 显示详细解析
             resultDescription.textContent = resultData.desc;
             
-            // 绘制雷达图
-            drawRadarChart(normalizedScores, bestMatchVector, matchPercent);
+            // 保存测试结果到localStorage
+            const testResult = {
+                animalName: bestMatchAnimal,
+                animalIcon: animalIcon,
+                matchPercent: matchPercent,
+                matchLevelText: matchLevelText,
+                matchColor: matchColor,
+                normalizedScores: normalizedScores,
+                animalVector: bestMatchVector,
+                description: resultData.desc,
+                traits: animalTraitsList,
+                timestamp: Date.now()
+            };
+            localStorage.setItem('last_test_result', JSON.stringify(testResult));
+            
+            // 显示"查看测试报告"按钮
+            if (viewReportBtn) {
+                viewReportBtn.style.display = 'block';
+            }
             
             loadingScreen.classList.add('hidden');
             resultScreen.classList.remove('hidden');
+            
+            // 等待结果页显示后再绘制雷达图，确保容器可见
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    drawRadarChart(normalizedScores, bestMatchVector, matchPercent);
+                });
+            });
+            
             isProcessing = false;
         }, 1500);
     }
@@ -1862,27 +2027,85 @@
             'AES': '审美性'
         };
         
-        const centerX = 250;
-        const centerY = 250;
-        const radius = 180;
-        const numDimensions = dimensionKeys.length;
-        const angleStep = (2 * Math.PI) / numDimensions;
-        
         // 清空容器
         radarChartContainer.innerHTML = '';
         
+        // 获取容器宽度，确保响应式
+        let containerWidth = radarChartContainer.offsetWidth;
+        if (containerWidth === 0 || containerWidth < 100) {
+            // 如果容器隐藏或宽度太小，使用父元素宽度或窗口宽度
+            const parentElement = radarChartContainer.parentElement;
+            if (parentElement && parentElement.offsetWidth > 0) {
+                containerWidth = parentElement.offsetWidth;
+            } else {
+                // 使用窗口宽度，减去padding
+                containerWidth = Math.min(window.innerWidth - 40, 500);
+            }
+        }
+        // 确保最小宽度
+        if (containerWidth < 300) {
+            containerWidth = Math.min(window.innerWidth - 40, 500);
+        }
+        containerWidth = Math.min(containerWidth, 500); // 最大500px
+        const containerHeight = 550;
+        
+        console.log('雷达图容器宽度:', containerWidth, '窗口宽度:', window.innerWidth);
+        
+        // 根据容器宽度动态调整中心点和半径
+        const centerX = containerWidth / 2;
+        const centerY = 250;
+        // 半径根据容器宽度调整，确保标签不超出
+        // 在移动端，需要留出更多空间给标签（约60-70px）
+        const labelSpace = window.innerWidth <= 600 ? 70 : 50;
+        const maxRadius = Math.min(180, (containerWidth / 2) - labelSpace);
+        const radius = maxRadius;
+        const numDimensions = dimensionKeys.length;
+        const angleStep = (2 * Math.PI) / numDimensions;
+        
         // 创建SVG（增加高度以容纳下方匹配度文字）
         const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        svg.setAttribute('width', '500');
-        svg.setAttribute('height', '550');
-        svg.setAttribute('viewBox', '0 0 500 550');
-        svg.style.position = 'absolute';
-        svg.style.top = '0';
-        svg.style.left = '0';
+        svg.setAttribute('viewBox', `0 0 ${containerWidth} ${containerHeight}`);
+        svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+        svg.style.width = '100%';
+        svg.style.height = '550px';
+        svg.style.maxWidth = '100%';
+        svg.style.display = 'block';
+        svg.style.position = 'relative';
+        svg.style.boxSizing = 'border-box';
+        svg.style.visibility = 'visible';
+        svg.style.opacity = '1';
         
-        // 绘制网格线（每5分一条）
-        const gridLevels = [5, 10, 15, 20];
-        gridLevels.forEach(level => {
+        // 计算所有数据的最小值和最大值，用于自适应缩放
+        const allValues = [];
+        dimensionKeys.forEach(key => {
+            allValues.push(userScores[key] || 0);
+            allValues.push(animalVector[key] || 0);
+        });
+        const minValue = Math.min(...allValues);
+        const maxValue = Math.max(...allValues);
+        const dataRange = maxValue - minValue || 1; // 避免除零
+        
+        // 自适应缩放参数：将数据范围映射到雷达图的20%-90%半径范围
+        // 这样即使数据值较小，也能显示得更大
+        const minRadiusPercent = 0.20; // 最小半径占最大半径的20%
+        const maxRadiusPercent = 0.90; // 最大半径占最大半径的90%
+        const scaleRange = maxRadiusPercent - minRadiusPercent;
+        
+        // 缩放函数：将原始值映射到新的半径范围
+        const scaleValue = (value) => {
+            if (dataRange === 0) return minRadiusPercent * radius; // 如果所有值相同
+            const normalized = (value - minValue) / dataRange; // 0-1之间
+            const scaled = minRadiusPercent + normalized * scaleRange; // 映射到20%-90%
+            return scaled * radius;
+        };
+        
+        // 绘制7个环形网格线（对应0, 5, 10, 15, 20分，以及中间值）
+        const gridLevels = [0, 5, 10, 15, 20];
+        // 为了显示7个环形，我们添加更细的刻度
+        const fineGridLevels = [2.5, 7.5, 12.5, 17.5];
+        const allGridLevels = [...gridLevels, ...fineGridLevels].sort((a, b) => a - b);
+        
+        allGridLevels.forEach(level => {
             const gridRadius = (level / 20) * radius;
             const points = [];
             for (let i = 0; i < numDimensions; i++) {
@@ -1894,8 +2117,10 @@
             const gridPolygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
             gridPolygon.setAttribute('points', points.join(' '));
             gridPolygon.setAttribute('fill', 'none');
-            gridPolygon.setAttribute('stroke', 'rgba(226, 232, 240, 0.5)');
-            gridPolygon.setAttribute('stroke-width', '1');
+            // 主要刻度（0, 5, 10, 15, 20）用更明显的线条
+            const isMainGrid = gridLevels.includes(level);
+            gridPolygon.setAttribute('stroke', isMainGrid ? 'rgba(226, 232, 240, 0.6)' : 'rgba(226, 232, 240, 0.3)');
+            gridPolygon.setAttribute('stroke-width', isMainGrid ? '1' : '0.5');
             svg.appendChild(gridPolygon);
         });
         
@@ -1915,9 +2140,10 @@
             line.setAttribute('stroke-width', '1');
             svg.appendChild(line);
             
-            // 标签
-            const labelX = centerX + (radius + 30) * Math.cos(angle);
-            const labelY = centerY + (radius + 30) * Math.sin(angle);
+            // 标签（根据屏幕宽度调整标签距离）
+            const labelDistance = window.innerWidth <= 600 ? 25 : 30;
+            const labelX = centerX + (radius + labelDistance) * Math.cos(angle);
+            const labelY = centerY + (radius + labelDistance) * Math.sin(angle);
             const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
             text.setAttribute('x', labelX);
             text.setAttribute('y', labelY);
@@ -1933,7 +2159,7 @@
         const animalPoints = [];
         dimensionKeys.forEach((key, index) => {
             const value = animalVector[key] || 0;
-            const normalizedValue = (value / 20) * radius;
+            const normalizedValue = scaleValue(value); // 使用自适应缩放
             const angle = index * angleStep - Math.PI / 2;
             const x = centerX + normalizedValue * Math.cos(angle);
             const y = centerY + normalizedValue * Math.sin(angle);
@@ -1950,7 +2176,7 @@
         const userPoints = [];
         dimensionKeys.forEach((key, index) => {
             const value = userScores[key] || 0;
-            const normalizedValue = (value / 20) * radius;
+            const normalizedValue = scaleValue(value); // 使用自适应缩放
             const angle = index * angleStep - Math.PI / 2;
             const x = centerX + normalizedValue * Math.cos(angle);
             const y = centerY + normalizedValue * Math.sin(angle);
@@ -1970,7 +2196,7 @@
             const angle = index * angleStep - Math.PI / 2;
             
             // 用户得分标注（橙色）
-            const userRadius = (userValue / 20) * radius;
+            const userRadius = scaleValue(userValue); // 使用自适应缩放
             const userX = centerX + userRadius * Math.cos(angle);
             const userY = centerY + userRadius * Math.sin(angle);
             const userCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
@@ -1981,7 +2207,7 @@
             svg.appendChild(userCircle);
             
             // 动物得分标注（蓝色）
-            const animalRadius = (animalValue / 20) * radius;
+            const animalRadius = scaleValue(animalValue); // 使用自适应缩放
             const animalX = centerX + animalRadius * Math.cos(angle);
             const animalY = centerY + animalRadius * Math.sin(angle);
             const animalCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
@@ -2005,6 +2231,30 @@
         svg.appendChild(matchText);
         
         radarChartContainer.appendChild(svg);
+        
+        console.log('雷达图SVG已添加到容器');
+        console.log('容器offsetWidth:', radarChartContainer.offsetWidth);
+        console.log('容器offsetHeight:', radarChartContainer.offsetHeight);
+        console.log('容器getBoundingClientRect:', radarChartContainer.getBoundingClientRect());
+        console.log('SVG getBoundingClientRect:', svg.getBoundingClientRect());
+        console.log('容器父元素:', radarChartContainer.parentElement);
+        console.log('容器父元素offsetWidth:', radarChartContainer.parentElement?.offsetWidth);
+        console.log('结果页是否隐藏:', resultScreen.classList.contains('hidden'));
+        console.log('容器计算样式:', {
+            display: window.getComputedStyle(radarChartContainer).display,
+            visibility: window.getComputedStyle(radarChartContainer).visibility,
+            opacity: window.getComputedStyle(radarChartContainer).opacity,
+            width: window.getComputedStyle(radarChartContainer).width,
+            height: window.getComputedStyle(radarChartContainer).height,
+            position: window.getComputedStyle(radarChartContainer).position
+        });
+        console.log('SVG计算样式:', {
+            display: window.getComputedStyle(svg).display,
+            visibility: window.getComputedStyle(svg).visibility,
+            opacity: window.getComputedStyle(svg).opacity,
+            width: window.getComputedStyle(svg).width,
+            height: window.getComputedStyle(svg).height
+        });
     }
 
     // 事件监听
@@ -2049,15 +2299,33 @@
         if (currentAuthCode) {
             localStorage.removeItem(`quiz_progress_${currentAuthCode}`);
         }
-        showAuthScreen();
+        goToHomePage();
     });
     restartBtn.addEventListener('touchstart', (e) => {
         e.preventDefault();
         if (currentAuthCode) {
             localStorage.removeItem(`quiz_progress_${currentAuthCode}`);
         }
-        showAuthScreen();
+        goToHomePage();
     });
+    
+    // 结果页的"测试原理"按钮
+    if (resultTheoryBtn) {
+        resultTheoryBtn.addEventListener('click', showTheoryModal);
+        resultTheoryBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            showTheoryModal();
+        });
+    }
+    
+    // 查看测试报告按钮
+    if (viewReportBtn) {
+        viewReportBtn.addEventListener('click', restoreTestResult);
+        viewReportBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            restoreTestResult();
+        });
+    }
     
     backBtn.addEventListener('click', goBack);
     backBtn.addEventListener('touchstart', (e) => {
@@ -2089,6 +2357,22 @@
         initAnimalGuide();
         initAuthCodeStorage();
         document.getElementById('quiz-container').style.transform = 'perspective(1000px) rotateX(0deg)';
+        
+        // 检查并显示"查看测试报告"按钮
+        checkAndShowReportButton();
+        
+        // 监听屏幕切换，控制"查看测试报告"按钮的显示
+        const observer = new MutationObserver(() => {
+            if (startScreen && !startScreen.classList.contains('hidden')) {
+                checkAndShowReportButton();
+            } else if (viewReportBtn) {
+                viewReportBtn.style.display = 'none';
+            }
+        });
+        
+        if (startScreen) {
+            observer.observe(startScreen, { attributes: true, attributeFilter: ['class'] });
+        }
         
         // 检测iOS设备并做特殊处理
         if (/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream) {
